@@ -126,9 +126,12 @@ endfunction
 
 " Function: s:jjFunctions.Commit(argList) {{{2
 " Creates a new change on top of the current one, equivalent to git commit.
+" jj commit only accepts -m/--message, not a file flag, so the message file
+" is read in Vim and passed as a shell-escaped string.
 function! s:jjFunctions.Commit(argList)
 	try
-		return s:DoCommand('commit -F "' . a:argList[0] . '"', 'commit', '', {})
+		let message = join(readfile(a:argList[0]), "\n")
+		return s:DoCommand('commit -m ' . shellescape(message), 'commit', '', {})
 	catch /\m^Version control command failed.*nothing changed/
 		echomsg 'No commit needed.'
 	endtry
