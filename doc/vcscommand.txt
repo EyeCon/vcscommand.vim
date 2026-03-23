@@ -33,19 +33,17 @@ Credits:  Benji Fisher's excellent MatchIt documentation
 	vcscommand Intro	: |vcscommand|
 	vcscommand Manual	: |vcscommand-manual|
 	Customization		: |vcscommand-customize|
-	SSH "integration"	: |vcscommand-ssh|
-	Changes from cvscommand	: |cvscommand-changes|
-	Bugs			: |vcscommand-bugs|
+	Bugs				: |vcscommand-bugs|
 
 ==============================================================================
 
 2. vcscommand Installation				*vcscommand-install*
 
-The vcscommand plugin comprises five files: vcscommand.vim, vcssvn.vim,
-vcscvs.vim, vcssvk.vim and vcscommand.txt (this file).  In order to install
-the plugin, place the vcscommand.vim, vcssvn.vim, vcssvk.vim, and vcscvs.vim
-files into a plugin directory in your runtime path (please see
-|add-global-plugin| and |'runtimepath'|. 
+The vcscommand plugin comprises several files: vcscommand.vim, backend
+plugins (vcsgit.vim, vcshg.vim, vcssvn.vim, vcsjj.vim, etc.) and
+vcscommand.txt (this file).  In order to install the plugin, place all
+plugin/*.vim files into a plugin directory in your runtime path (please see
+|add-global-plugin| and |'runtimepath'|).
 
 This help file can be included in the VIM help system by copying it into a
 'doc' directory in your runtime path and then executing the |:helptags|
@@ -62,8 +60,7 @@ details.
 							*vcscommand-intro*
 
 The vcscommand plugin provides global ex commands for manipulating
-version-controlled source files, currently those controlled either by CVS or
-Subversion.  In general, each command operates on the current buffer and
+version-controlled source files.  In general, each command operates on the current buffer and
 accomplishes a separate source control function, such as update, commit, log,
 and others (please see |vcscommand-commands| for a list of all available
 commands).  The results of each operation are displayed in a scratch buffer.
@@ -113,18 +110,6 @@ vcscommand defines the following commands:
 |:VCSUpdate|
 |:VCSVimDiff|
 
-The following commands are specific to CVS files:
-
-|:CVSEdit|
-|:CVSEditors|
-|:CVSUnedit|
-|:CVSWatch|
-|:CVSWatchAdd|
-|:CVSWatchOn|
-|:CVSWatchOff|
-|:CVSWatchRemove|
-|:CVSWatchers|
-
 :VCSAdd							*:VCSAdd*
 
 This command adds the current file to source control.  Please note, this does
@@ -137,17 +122,12 @@ This command displays the current file with each line annotated with the
 version in which it was most recently changed.  If an argument is given, the
 argument is used as a revision number to display.  If not given an argument,
 it uses the most recent version of the file (on the current branch, if under
-CVS control).  Additionally, if the current buffer is a VCSAnnotate buffer
+Additionally, if the current buffer is a VCSAnnotate buffer
 already, the version number on the current line is used.
 
 If '!' is used, the view of the annotated buffer is split so that the
 annotation is in a separate window from the content, and each is highlighted
 separately.
-
-For CVS buffers, the 'VCSCommandCVSAnnotateParent' option, if set to non-zero,
-will cause the above behavior to change.  Instead of annotating the version on
-the current line, the parent revision is used instead, crossing branches if
-necessary.
 
 With no arguments the cursor will jump to the line in the annotated buffer
 corresponding to the current line in the source buffer.
@@ -192,10 +172,6 @@ specified revision.
 With two arguments, the diff is performed between the specified revisions of
 the current file.
 
-For CVS, this command uses the |VCSCommandCVSDiffOpt| variable to specify diff
-options.  If that variable does not exist, a plugin-specific default is used.
-If you wish to have no options, then set it to the empty string.
-
 For SVN, this command uses the |VCSCommandSVNDiffOpt| variable to specify diff
 options.  If that variable does not exist, the SVN default is used.
 Additionally, |VCSCommandSVNDiffExt| can be used to select an external diff
@@ -220,7 +196,7 @@ scratch buffer.
 
 This command locks the current file in order to prevent other users from
 concurrently modifying it.  The exact semantics of this command depend on the
-underlying VCS.  This does nothing in CVS.  All parameters are passed to the
+underlying VCS.  All parameters are passed to the
 underlying VCS.
 
 :VCSLog							*:VCSLog*
@@ -285,45 +261,6 @@ Using the 2-argument form of the command resets the vimdiff to only those 2
 versions.  Additionally, invoking the command on a different file will close
 the previous vimdiff buffers.
 
-:CVSEdit						*:CVSEdit*
-
-This command performs "cvs edit" on the current file.  Yes, the output buffer
-in this case is almost completely useless.
-
-:CVSEditors						*:CVSEditors*
-
-This command performs "cvs edit" on the current file.
-
-:CVSUnedit						*:CVSUnedit*
-
-Performs "cvs unedit" on the current file.  Again, yes, the output buffer here
-is basically useless.
-
-:CVSWatch						*:CVSWatch*
-
-This command takes an argument which must be one of [on|off|add|remove].  The
-command performs "cvs watch" with the given argument on the current file.
-
-:CVSWatchAdd						*:CVSWatchAdd*
-
-This command is an alias for ":CVSWatch add"
-
-:CVSWatchOn						*:CVSWatchOn*
-
-This command is an alias for ":CVSWatch on"
-
-:CVSWatchOff						*:CVSWatchOff*
-
-This command is an alias for ":CVSWatch off"
-
-:CVSWatchRemove						*:CVSWatchRemove*
-
-This command is an alias for ":CVSWatch remove"
-
-:CVSWatchers						*:CVSWatchers*
-
-This command performs "cvs watchers" on the current file.
-
 4.2 Mappings						*vcscommand-mappings*
 
 By default, a mapping is defined for each command.  These mappings execute the
@@ -345,17 +282,6 @@ default (no-argument) form of each command.
 |<Leader>|cu VCSUpdate
 |<Leader>|cU VCSUnlock
 |<Leader>|cv VCSVimDiff
-
-Only for CVS buffers:
-
-|<Leader>|ce CVSEdit
-|<Leader>|cE CVSEditors
-|<Leader>|ct CVSUnedit
-|<Leader>|cwv CVSWatchers
-|<Leader>|cwa CVSWatchAdd
-|<Leader>|cwn CVSWatchOn
-|<Leader>|cwf CVSWatchOff
-|<Leader>|cwf CVSWatchRemove
 
 						*vcscommand-mappings-override*
 
@@ -425,8 +351,6 @@ level and are checked in that order of precedence.
 The following variables are available:
 
 |VCSCommandCommitOnWrite|
-|VCSCommandCVSDiffOpt|
-|VCSCommandCVSExec|
 |VCSCommandDeleteOnHide|
 |VCSCommandDiffSplit|
 |VCSCommandDisableAll|
@@ -444,7 +368,6 @@ The following variables are available:
 |VCSCommandResultBufferNameExtension|
 |VCSCommandResultBufferNameFunction|
 |VCSCommandSplit|
-|VCSCommandSVKExec|
 |VCSCommandSVNDiffExt|
 |VCSCommandSVNDiffOpt|
 |VCSCommandSVNExec|
@@ -458,20 +381,10 @@ to take place immediately as soon as the log message buffer is written.
 If set to zero, only the VCSCommit mapping will cause the pending commit to
 occur.	If not set, it defaults to 1.
 
-VCSCommandCVSExec				*VCSCommandCVSExec*
-
-This variable controls the executable used for all CVS commands  If not set,
-it defaults to "cvs".
-
 VCSCommandDeleteOnHide				*VCSCommandDeleteOnHide*
 
 This variable, if set to a non-zero value, causes the temporary result buffers
 to automatically delete themselves when hidden.
-
-VCSCommandCVSDiffOpt				*VCSCommandCVSDiffOpt*
-
-This variable, if set, determines the options passed to the diff command of
-CVS.  If not set, it defaults to 'u'.
 
 VCSCommandDiffSplit				*VCSCommandDiffSplit*
 
@@ -551,7 +464,7 @@ will be passed the following arguments:
   
   originalBuffer - buffer number of the source file.
   
-  vcsType - type of VCS controlling this file (such as 'CVS' or 'SVN').
+  vcsType - type of VCS controlling this file (such as 'git' or 'SVN').
   
   statusText - extra text associated with the VCS action (such as version
   numbers).
@@ -566,11 +479,6 @@ one another.  If set to 'vertical', the resulting windows will be
 side-by-side.  If not set, it defaults to 'horizontal' for all but
 VCSVimDiff windows.  VCSVimDiff windows default to the user's 'diffopt'
 setting, if set, otherwise 'vertical'.
-
-VCSCommandSVKExec				*VCSCommandSVKExec*
-
-This variable controls the executable used for all SVK commands  If not set,
-it defaults to "svk".
 
 VCSCommandSVNDiffExt				*VCSCommandSVNDiffExt*
 
@@ -729,148 +637,14 @@ a simple way to do that).
 
 The 'VCSCommandBufferInfo' variable is a list which contains, in order, the
 revision of the current file, the latest revision of the file in the
-repository, and (for CVS) the name of the branch.  If those values cannot be
+repository.  If those values cannot be
 determined, the list is a single element:  'Unknown'.
 
 ==============================================================================
 
-6. SSH "integration"					*vcscommand-ssh*
-
-The following instructions are intended for use in integrating the
-vcscommand.vim plugin with an SSH-based CVS environment.
-
-Familiarity with SSH and CVS are assumed.
-
-These instructions assume that the intent is to have a message box pop up in
-order to allow the user to enter a passphrase.  If, instead, the user is
-comfortable using certificate-based authentication, then only instructions
-6.1.1 and 6.1.2 (and optionally 6.1.4) need to be followed; ssh should then
-work transparently.
-
-6.1 Environment settings				*vcscommand-ssh-env*
-
-6.1.1 CVSROOT should be set to something like:
-
-	:ext:user@host:/path_to_repository
-
-6.1.2 CVS_RSH should be set to:
-
-	ssh
-
-	Together, those settings tell CVS to use ssh as the transport when
-	performing CVS calls.
-
-6.1.3 SSH_ASKPASS should be set to the password-dialog program.  In my case,
-	running gnome, it's set to:
-
-	/usr/libexec/openssh/gnome-ssh-askpass
-
-	This tells SSH how to get passwords if no input is available.
-
-6.1.4 OPTIONAL.  You may need to set SSH_SERVER to the location of the cvs
-	executable on the remote (server) machine.
-
-6.2 CVS wrapper program				*vcscommand-ssh-wrapper*
-
-Now you need to convince SSH to use the password-dialog program.  This means
-you need to execute SSH (and therefore CVS) without standard input.  The
-following script is a simple perl wrapper that dissasociates the CVS command
-from the current terminal.  Specific steps to do this may vary from system to
-system; the following example works for me on linux.
-
-#!/usr/bin/perl -w
-use strict;
-use POSIX qw(setsid);
-open STDIN, '/dev/null';
-fork and do {wait; exit;};
-setsid;
-exec('cvs', @ARGV);
-
-6.3 Configuring vcscommand.vim			*vcscommand-ssh-config*
-
-At this point, you should be able to use your wrapper script to invoke CVS with
-various commands, and get the password dialog.  All that's left is to make CVS
-use your newly-created wrapper script.
-
-6.3.1 Tell vcscommand.vim what CVS executable to use.  The easiest way to do this
-	is globally, by putting the following in your .vimrc:
-
-	let VCSCommandCVSExec=/path/to/cvs/wrapper/script
-
-6.4 Where to go from here			*vcscommand-ssh-other*
-
-The script given above works even when non-SSH CVS connections are used,
-except possibly when interactively entering the message for CVS commit log
-(depending on the editor you use... VIM works fine).  Since the vcscommand.vim
-plugin handles that message without a terminal, the wrapper script can be used
-all the time.
-
-This allows mixed-mode operation, where some work is done with SSH-based CVS
-repositories, and others with pserver or local access.
-
-It is possible, though beyond the scope of the plugin, to dynamically set the
-CVS executable based on the CVSROOT for the file being edited.  The user
-events provided (such as VCSBufferCreated and VCSBufferSetup) can be used to
-set a buffer-local value (b:VCSCommandCVSExec) to override the CVS executable
-on a file-by-file basis.  Alternatively, much the same can be done (less
-automatically) by the various project-oriented plugins out there.
-
-It is highly recommended for ease-of-use that certificates with no passphrase
-or ssh-agent are employed so that the user is not given the password prompt
-too often.
-
-==============================================================================
-
-7. Changes from cvscommand				*cvscommand-changes*
-
-1.  Require Vim 7 in order to leverage several convenient features; also
-because I wanted to play with Vim 7.
-
-2.  Renamed commands to start with 'VCS' instead of 'CVS'.  The exceptions are
-the 'CVSEdit' and 'CVSWatch' family of commands, which are specific to CVS.
-
-3.  Renamed options, events to start with 'VCSCommand'.
-
-4.  Removed option to jump to the parent version of the current line in an
-annotated buffer, as opposed to the version on the current line.  This made
-little sense in the branching scheme used by subversion, where jumping to a
-parent branch required finding a different location in the repository.  It
-didn't work consistently in CVS anyway.
-
-5.  Removed option to have nameless scratch buffers.
-
-6.  Changed default behavior of scratch buffers to split the window instead of
-displaying in the current window.  This may still be overridden using the
-'VCSCommandEdit' option.
-
-7.  Split plugin into multiple plugins.
-
-8.  Added 'VCSLock' and 'VCSUnlock' commands.  These are implemented for
-subversion but not for CVS.  These were not kept specific to subversion as they
-seemed more general in nature and more likely to be supported by any future VCS
-supported by this plugin.
-
-9.  Changed name of buffer variables set by commands.
-
-'b:cvsOrigBuffNR' became 'b:VCSCommandOriginalBuffer'
-'b:cvscmd' became 'b:VCSCommandCommand'
-
-10.  Added new automatic variables to command result buffers.
-
-'b:VCSCommandSourceFile'
-'b:VCSCommandVCSType'
-
-==============================================================================
-
-8. Known bugs						*vcscommand-bugs*
+6. Known bugs						*vcscommand-bugs*
 
 Please let me know if you run across any.
-
-CVSUnedit may, if a file is changed from the repository, provide prompt text
-to determine whether the changes should be thrown away.  Currently, that text
-shows up in the CVS result buffer as information; there is no way for the user
-to actually respond to the prompt and the CVS unedit command does nothing.  If
-this really bothers anyone, please let me know.
 
 VCSVimDiff, when using the original (real) source buffer as one of the diff
 buffers, uses some hacks to try to restore the state of the original buffer
