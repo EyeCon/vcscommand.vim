@@ -435,6 +435,8 @@ The following variables are available:
 |VCSCommandDisableMenu|
 |VCSCommandEdit|
 |VCSCommandEnableBufferSetup|
+|VCSCommandJJDiffOpt|
+|VCSCommandJJExec|
 |VCSCommandMappings|
 |VCSCommandMapPrefix|
 |VCSCommandMenuPriority|
@@ -584,6 +586,41 @@ VCSCommandSVNExec				*VCSCommandSVNExec*
 
 This variable controls the executable used for all SVN commands  If not set,
 it defaults to "svn".
+
+VCSCommandJJExec				*VCSCommandJJExec*
+
+This variable controls the executable used for all JJ (Jujutsu) commands.  If
+not set, it defaults to "jj".
+
+VCSCommandJJDiffOpt				*VCSCommandJJDiffOpt*
+
+This variable, if set, determines the default options passed to the VCSDiff
+command for JJ repositories.  If any options (starting with '-') are passed to
+the command, this variable is not used.
+
+							*vcscommand-jj-notes*
+Notes on JJ (Jujutsu) support:
+
+- VCSAdd maps to |jj file track|, which explicitly tracks a previously-
+  untracked file.  Modified files are tracked automatically by jj.
+
+- VCSAnnotate requires jj 0.27 or later (the |jj file annotate| subcommand).
+
+- VCSCommit maps to |jj commit|, which creates a new change on top of the
+  current one and moves the working copy forward.
+
+- VCSDelete maps to |jj file untrack|, which stops tracking a file.  Jujutsu
+  detects file deletions automatically; untrack is the closest semantic
+  equivalent.
+
+- VCSRevert maps to |jj restore|, which restores the file to the content of
+  its parent revision.
+
+- VCSUpdate is not implemented for jj.
+
+- When jj is used on a colocated repository (one with both .jj/ and .git/),
+  jj is identified as an exact match and will take priority over git.  To
+  force git to be used instead, set |VCSCommandVCSTypePreference| to 'git'.
 
 VCSCommandVCSTypeOverride			*VCSCommandVCSTypeOverride*
 
