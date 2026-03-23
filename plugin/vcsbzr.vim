@@ -38,10 +38,6 @@ if exists('VCSCommandDisableAll')
 	finish
 endif
 
-if v:version < 700
-  echohl WarningMsg|echomsg 'VCSCommand requires at least VIM 7.0'|echohl None
-  finish
-endif
 
 if !exists('g:loaded_VCSCommand')
 	runtime plugin/vcscommand.vim
@@ -87,7 +83,7 @@ function! s:bzrFunctions.Identify(buffer)
   let fileName = resolve(bufname(a:buffer))
   let l:save_bzr_log=$BZR_LOG
   try
-    let $BZR_LOG=has("win32") || has("win95") || has("win64") || has("win16") ? "nul" : "/dev/null"
+    let $BZR_LOG=has("win32") ? "nul" : "/dev/null"
     let statusText = s:VCSCommandUtility.system(s:Executable() . ' info -- "' . fileName . '"')
   finally
     let $BZR_LOG=l:save_bzr_log

@@ -43,10 +43,6 @@ if exists('VCSCommandDisableAll')
 	finish
 endif
 
-if v:version < 700
-	echohl WarningMsg|echomsg 'VCSCommand requires at least VIM 7.0'|echohl None
-	finish
-endif
 
 if !exists('g:loaded_VCSCommand')
 	runtime plugin/vcscommand.vim
