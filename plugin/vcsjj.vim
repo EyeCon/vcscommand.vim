@@ -193,6 +193,11 @@ function! s:jjFunctions.Log(argList)
 	return s:DoCommand(join(['log'] + a:argList), 'log', join(a:argList, ' '), {})
 endfunction
 
+" Function: s:jjFunctions.Info(argList) {{{2
+function! s:jjFunctions.Info(argList)
+	return s:DoCommand(join(['log', '--no-graph', '--limit', '1'] + a:argList + ['<VCSCOMMANDFILE>']), 'info', join(a:argList, ' '), {})
+endfunction
+
 " Function: s:jjFunctions.Revert(argList) {{{2
 " Restores the current file to the version in the parent revision.
 function! s:jjFunctions.Revert(argList)

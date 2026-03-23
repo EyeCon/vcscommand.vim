@@ -201,9 +201,14 @@ function! s:gitFunctions.Log(argList)
 	return s:DoCommand(join(['log'] + a:argList), 'log', join(a:argList, ' '), {})
 endfunction
 
+" Function: s:gitFunctions.Info(argList) {{{2
+function! s:gitFunctions.Info(argList)
+	return s:DoCommand(join(['log', '-1'] + a:argList, ' '), 'info', join(a:argList, ' '), {})
+endfunction
+
 " Function: s:gitFunctions.Revert(argList) {{{2
 function! s:gitFunctions.Revert(argList)
-	return s:DoCommand('checkout', 'revert', '', {})
+	return s:DoCommand('restore', 'revert', '', {})
 endfunction
 
 " Function: s:gitFunctions.Review(argList) {{{2
