@@ -379,19 +379,16 @@ endfunction
 
 function! s:VCSCommandUtility.system(...)
 	let output = call('system', a:000)
-	if exists('*iconv') && has('multi_byte')
-		if(strlen(&tenc) && &tenc != &enc)
-			let output = iconv(output, &tenc, &enc)
-		else
-			let originalBuffer = VCSCommandGetOriginalBuffer(VCSCommandGetOption('VCSCommandEncodeAsFile', 0))
-			if originalBuffer
-				let fenc = getbufvar(originalBuffer, '&fenc')
-				if fenc != &enc
-					let output = iconv(output, fenc, &enc)
-				endif
+	if strlen(&tenc) && &tenc != &enc
+		let output = iconv(output, &tenc, &enc)
+	else
+		let originalBuffer = VCSCommandGetOriginalBuffer(VCSCommandGetOption('VCSCommandEncodeAsFile', 0))
+		if originalBuffer
+			let fenc = getbufvar(originalBuffer, '&fenc')
+			if fenc != &enc
+				let output = iconv(output, fenc, &enc)
 			endif
 		endif
-
 	endif
 	return output
 endfunction
@@ -837,12 +834,9 @@ function! s:VCSAnnotate(bang, ...)
 				" the current version, so jumping to the same
 				" line is the expected action.
 				execute "normal!" line . 'G'
-				if has('folding')
-					" The execution of the buffer created autocommand
-					" re-folds the buffer.  Display the current line
-					" unfolded.
-					normal! zv
-				endif
+				" The execution of the buffer created autocommand
+				" re-folds the buffer.  Display the current line unfolded.
+				normal! zv
 			endif
 		endif
 
@@ -1071,9 +1065,7 @@ function! s:VCSVimDiff(...)
 								\ . '|call setbufvar('.originalBuffer.', ''&foldlevel'', '''.getbufvar(originalBuffer, '&foldlevel').''')'
 								\ . '|call setbufvar('.originalBuffer.', ''&scrollbind'', '.getbufvar(originalBuffer, '&scrollbind').')'
 								\ . '|call setbufvar('.originalBuffer.', ''&wrap'', '.getbufvar(originalBuffer, '&wrap').')'
-					if has('cursorbind')
-						let t:vcsCommandVimDiffRestoreCmd .= '|call setbufvar('.originalBuffer.', ''&cursorbind'', '.getbufvar(originalBuffer, '&cursorbind').')'
-					endif
+					let t:vcsCommandVimDiffRestoreCmd .= '|call setbufvar('.originalBuffer.', ''&cursorbind'', '.getbufvar(originalBuffer, '&cursorbind').')'
 					let t:vcsCommandVimDiffRestoreCmd .= '|if &foldmethod==''manual''|execute ''normal! zE''|endif'
 					diffthis
 					wincmd w
@@ -1139,15 +1131,8 @@ endfunction
 " Changes the current directory, respecting :lcd changes.
 
 function! VCSCommandChdir(directory)
-	let command = 'cd'
-	if exists("*haslocaldir") && haslocaldir()
-		let command = 'lcd'
-	endif
-	if exists("*fnameescape")
-		execute command fnameescape(a:directory)
-	else
-		execute command escape(a:directory, ' ')
-	endif
+	let command = haslocaldir() ? 'lcd' : 'cd'
+	execute command fnameescape(a:directory)
 endfunction
 
 " Function: VCSCommandChangeToCurrentFileDir() {{{2
@@ -1281,9 +1266,7 @@ function! VCSCommandDoCommand(cmd, cmdName, statusText, options)
 	" This could be fixed by explicitly detecting whether the last line is
 	" within a fold, but I prefer to simply unfold the result buffer altogether.
 
-	if has('folding')
-		normal! zR
-	endif
+	normal! zR
 
 	$d
 	1
