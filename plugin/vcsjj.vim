@@ -161,7 +161,7 @@ function! s:jjFunctions.Diff(argList)
 		endfor
 	endif
 
-	return s:DoCommand(join(['diff'] + diffOptions + a:argList), 'diff', join(a:argList), {})
+	return s:DoCommand(join(['diff', '--git'] + diffOptions + a:argList), 'diff', join(a:argList), {})
 endfunction
 
 " Function: s:jjFunctions.GetBufferInfo() {{{2
